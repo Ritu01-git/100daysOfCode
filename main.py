@@ -1,18 +1,45 @@
-from question_model import Question
-from data import question_data
-from quiz_brain import QuizBrain
+from turtle import Turtle, Screen
+import time
+from snake import Snake
+from food import Food
+from scoreboard import ScoreBoard
 
-question_bank = []
+screen = Screen()
+screen.title("Snake Game")
+screen.bgcolor("black")
+screen.tracer(0)
+screen.setup(width=500, height=500)
 
-for question in question_data:
-    Q_text = question["text"]
-    Q_answer = question["answer"]
-    new_question = Question(Q_text, Q_answer)
-    question_bank.append(new_question)
+snake = Snake()
+food = Food()
+score = ScoreBoard()
 
-quiz = QuizBrain(question_bank)
-while quiz.still_has_question():
-    quiz.new_question()
+screen.listen()
+screen.onkey(snake.up, "Up")
+screen.onkey(snake.down, "Down")
+screen.onkey(snake.left, "Left")
+screen.onkey(snake.right, "Right")
+race_is_on = True
 
-print("You have completed the quiz.")
-print(f"Your final score is : {quiz.score}/12")
+while race_is_on:
+    screen.update()
+    time.sleep(0.1)
+    snake.move()
+
+    if snake.all_segments[0].distance(food) < 15:
+        food.refresh()
+        snake.extend()
+        score.increase_score()
+
+    if snake.all_segments[0].xcor() > 280 or snake.all_segments[0].xcor() < -280 or snake.all_segments[
+        0].ycor() > 280 or snake.all_segments[0].ycor() < -280:
+        race_is_on = False
+        score.game_over()
+
+    for segment in snake.all_segments[1:]:
+
+        if snake.all_segments[0].distance(segment) < 10:
+            race_is_on = False
+            score.game_over()
+
+screen.exitonclick()
